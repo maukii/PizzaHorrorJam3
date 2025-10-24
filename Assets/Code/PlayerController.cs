@@ -25,7 +25,12 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         playerFootstepPlayer = GetComponentInChildren<PlayerFootstep>();
         anim = GetComponent<Animator>();
+        sensitivity = PlayerPrefs.GetFloat("sensitivity", sensitivity);
     }
+
+    void OnEnable() => PauseMenu.OnSensitivityChanged += UpdateSensitivity;
+
+    void OnDisable() => PauseMenu.OnSensitivityChanged -= UpdateSensitivity;
 
     void OnApplicationFocus(bool focus)
     {
@@ -85,4 +90,6 @@ public class PlayerController : MonoBehaviour
     }
 
     public void PlayFootstepSound() => playerFootstepPlayer.PlayStepSound();
+
+    void UpdateSensitivity(float newValue) => sensitivity = newValue;
 }
