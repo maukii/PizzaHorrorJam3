@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float sensitivity = 100f;
     [SerializeField] Transform pitchTransform;
 
+    PlayerInteractor playerInteractor;
     PlayerFootstep playerFootstepPlayer;
     CharacterController controller;
     Animator anim;
@@ -18,12 +18,14 @@ public class PlayerController : MonoBehaviour
     float vertical;
     bool running = false;
     Vector3 moveDirection = Vector3.zero;
+    bool isHiding = false;
 
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
         playerFootstepPlayer = GetComponentInChildren<PlayerFootstep>();
+        playerInteractor = GetComponent<PlayerInteractor>();
         anim = GetComponent<Animator>();
         sensitivity = PlayerPrefs.GetFloat("sensitivity", sensitivity);
     }
@@ -40,6 +42,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (isHiding) return;
+
         ReadInput();
         HandleLook();
         HandleMove();
@@ -87,6 +91,13 @@ public class PlayerController : MonoBehaviour
             direction.Normalize();
 
         return direction;
+    }
+
+    public void SetHiding(bool isHiding)
+    {
+        playerInteractor.HideInteractUI();
+        playerInteractor.enabled = !isHiding;
+        this.isHiding = isHiding;
     }
 
     public void PlayFootstepSound() => playerFootstepPlayer.PlayStepSound();
