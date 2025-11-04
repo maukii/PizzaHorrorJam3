@@ -21,4 +21,6 @@ public static class GameEventSystem
     public static bool IsCollected(CollectableType type) => _collectedItems.Contains(type);
 
     public static void Reset() => _collectedItems.Clear();
+
+    public static int GetCollectedCount() => _collectedItems.Count;
 }

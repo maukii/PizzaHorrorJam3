@@ -7,5 +7,5 @@ public class SoundOnCharacter : MonoBehaviour
 
     void Awake() => GetComponent<Febucci.UI.Core.TypewriterCore>()?.onCharacterVisible.AddListener(OnCharacter);
 
-    void OnCharacter(char character) => source.Play();
+    void OnCharacter(char character) => source?.Play();
 }

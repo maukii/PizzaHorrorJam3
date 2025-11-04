@@ -3,15 +3,21 @@ using UnityEngine;
 
 public interface IInteractable
 {
+    bool CanInteract { get; }
     void Interact(GameObject interactor);
+    string GetInteractionPrompt();
 }
 
 public class HidingPlace : MonoBehaviour, IInteractable
 {
+    [SerializeField] AudioClip hidingSfx;
     [SerializeField] CinemachineCamera hidingCamera;
+    [SerializeField] HideSequenceManager hideSequenceManager;
+    [SerializeField] PlayerController playerController;
 
     bool isPlayerHidden = false;
-
+    public bool CanInteract => true;
+    
 
     public void Interact(GameObject interactor)
     {
@@ -19,27 +25,32 @@ public class HidingPlace : MonoBehaviour, IInteractable
         {
             HidePlayer(interactor);
         }
-        else
+    }
+
+    void Update()
+    {
+        if (isPlayerHidden && (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0)) && !hideSequenceManager.IsInCutscene())
         {
-            RevealPlayer(interactor);
+            RevealPlayer();
         }
     }
 
-    void RevealPlayer(GameObject interactor)
+    public void RevealPlayer()
     {
-        if (interactor.TryGetComponent(out PlayerController playerController))
-            playerController.SetHiding(false);
-
+        playerController.SetHiding(false);
         hidingCamera.gameObject.SetActive(false);
         isPlayerHidden = false;
+        AudioSource.PlayClipAtPoint(hidingSfx, transform.position);
     }
 
     void HidePlayer(GameObject interactor)
     {
-        if (interactor.TryGetComponent(out PlayerController playerController))
-            playerController.SetHiding(true);
-
+        playerController.SetHiding(true);
         hidingCamera.gameObject.SetActive(true);
         isPlayerHidden = true;
+        hideSequenceManager.PlayerEnteredCloset(this);
+        AudioSource.PlayClipAtPoint(hidingSfx, transform.position);
     }
+
+    public string GetInteractionPrompt() => "HIDE";
 }

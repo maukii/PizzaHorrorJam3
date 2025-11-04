@@ -6,7 +6,7 @@ public class PlayerInteractor : MonoBehaviour
     [SerializeField] float interactDistance = 2.5f;
     [SerializeField] LayerMask interactableMask = ~0;
     [SerializeField] CinemachineCamera playerCamera;
-    [SerializeField] GameObject interactUI;
+    [SerializeField] InteractUI interactUI;
 
     IInteractable currentTarget;
 
@@ -14,7 +14,7 @@ public class PlayerInteractor : MonoBehaviour
     void Update()
     {
         DetectInteractable();
-        if (Input.GetKeyDown(KeyCode.E)) TryInteract();
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(0)) TryInteract();
     }
 
     void DetectInteractable()
@@ -25,20 +25,22 @@ public class PlayerInteractor : MonoBehaviour
         {
             if (hit.collider.TryGetComponent(out IInteractable interactable))
             {
-                currentTarget = interactable;
-                interactUI.SetActive(true);
-                Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.green);
-                return;
+                if (interactable.CanInteract)
+                {
+                    currentTarget = interactable;
+                    interactUI.gameObject.SetActive(true);
+                    interactUI.SetPrompt(interactable.GetInteractionPrompt());
+                    return;
+                }
             }
         }
 
-        Debug.DrawRay(ray.origin, ray.direction * interactDistance, Color.red);
-        interactUI.SetActive(false);
+        interactUI.gameObject.SetActive(false);
     }
 
     public void HideInteractUI()
     {
-        interactUI.SetActive(false);
+        interactUI.gameObject.SetActive(false);
     }
 
     void TryInteract()

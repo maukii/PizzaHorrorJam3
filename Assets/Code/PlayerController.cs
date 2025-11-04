@@ -2,6 +2,7 @@
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] bool canRun = true;
     [SerializeField] float moveSpeed = 5f;
     [SerializeField] float runSpeedMultiplier = 1.5f;
     [SerializeField] float sensitivity = 100f;
@@ -28,6 +29,12 @@ public class PlayerController : MonoBehaviour
         playerInteractor = GetComponent<PlayerInteractor>();
         anim = GetComponent<Animator>();
         sensitivity = PlayerPrefs.GetFloat("sensitivity", sensitivity);
+    }
+
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void OnEnable() => PauseMenu.OnSensitivityChanged += UpdateSensitivity;
@@ -58,7 +65,7 @@ public class PlayerController : MonoBehaviour
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
 
-        running = Input.GetKey(KeyCode.LeftShift);
+        running = Input.GetKey(KeyCode.LeftShift) && canRun;
 
         moveDirection = GetMoveDirection();
     }
@@ -97,10 +104,18 @@ public class PlayerController : MonoBehaviour
     {
         playerInteractor.HideInteractUI();
         playerInteractor.enabled = !isHiding;
+        anim.enabled = !isHiding;
         this.isHiding = isHiding;
     }
 
     public void PlayFootstepSound() => playerFootstepPlayer.PlayStepSound();
 
     void UpdateSensitivity(float newValue) => sensitivity = newValue;
+
+    public void GameOver()
+    {
+        gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
 }
